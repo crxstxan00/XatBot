@@ -1,0 +1,57 @@
+<!-- Botón flotante para abrir el chat -->
+<div id="chatbot-button" style="position: fixed; bottom: 20px; left: 20px; background-color: #000000; color: ffffff; padding: 15px; border-radius: 45%; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <span style="font-size: 18px;">💬</span>
+</div>
+<!-- Contenedor del chat flotante -->
+<div id="chatbot-container" style="position: fixed; bottom: 70px; left: 60px; width: 300px; height: 400px; background-color: black; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: none; flex; flex-direction: column; padding: 10px;">
+    <!-- Área de chat -->
+    <div id="chatbot-messages" style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px;"></div>
+    <!-- Campo para ingresar mensaje -->
+    <input type="text" id="chatbot-message" placeholder="Escribe tu mensaje..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+    <!-- Botón para enviar mensaje -->
+    <button id="chatbot-send" style="padding: 10px; margin-top: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%;">Enviar</button>
+</div>
+<script>
+document.getElementById('chatbot-button').addEventListener('click', function() {
+    var chatbotContainer = document.getElementById('chatbot-container');
+    chatbotContainer.style.display = chatbotContainer.style.display === 'none' || chatbotContainer.style.display === '' ? 'flex' : 'none';
+});
+document.getElementById('chatbot-send').addEventListener('click', function() {
+    var userMessage = document.getElementById('chatbot-message').value;
+    if (userMessage.trim() === '') return;
+
+    // Mostrar el mensaje del usuario en el chat
+    var messageElement = document.createElement('div');
+    messageElement.textContent = 'Tú: ' + userMessage;
+    document.getElementById('chatbot-messages').appendChild(messageElement);
+
+    // Limpiar el campo de entrada
+    document.getElementById('chatbot-message').value = '';
+
+    // Enviar el mensaje al servidor de Google Colab usando la URL de ngrok
+    var chatbotUrl = 'https://4314-104-154-69-130.ngrok-free.app/chatbot' //4953-34-80-168-199.ngrok-free.app'';  // Cambia esta URL con la URL de ngrok
+
+    fetch(chatbotUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Mostrar la respuesta del chatbot
+        var botMessage = document.createElement('div');
+        botMessage.textContent = 'Chatbot: ' + data.response;
+        document.getElementById('chatbot-messages').appendChild(botMessage);
+        
+        // Desplazar hacia abajo para mostrar el último mensaje
+        document.getElementById('chatbot-messages').scrollTop = document.getElementById('chatbot-messages').scrollHeight;
+    })
+    .catch(error => {
+        var errorMessage = document.createElement('div');
+        errorMessage.textContent = 'Error al contactar el chatbot.';
+        document.getElementById('chatbot-messages').appendChild(errorMessage);
+    });
+});
+</script>
